@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-
+import time
 # Text input
 
 name = st.text_input("Enter your name:")
@@ -110,3 +110,58 @@ with col3:
 
 with st.expander("Click to expand"):
 	st.bar_chart({"Data":[rd.randint(2,10) for _ in range(25)]})
+	
+
+st.write("Starting an extensive computaiton ... ")
+latest_iteration = st.empty() # place holder to hold element that can be updated !
+
+progress_text = "Operation in progress. Please wait ... "
+
+my_bar = st.progress(0, text  = progress_text)
+time.sleep(2)
+
+#for i in range(100):
+#	my_bar.progress(i+1)
+#	latest_iteration.text(f"Iteration {i+1}")
+#	time.sleep(0.1)
+
+#st.write("We are done: :smile:")
+
+st.write(st.session_state)
+
+
+if "counter" not in st.session_state:
+    st.session_state["counter"] = 0
+else:
+    st.session_state.counter += 1
+    
+st.write(f"Counter {st.session_state.counter}")
+
+button = st.button("Update state")
+if "clicks" not in st.session_state:
+	st.session_state["clicks"] = 0
+if button:
+	st.session_state.clicks += 1
+st.write(st.session_state["clicks"])
+
+number = st.slider("Value", 1, 10, key="my_slider") #using key argument link the variable to the session state !!!!
+
+st.write(st.session_state)
+
+# Callbacks
+
+st.subheader("Distance converter")
+
+def miles_to_km():
+	st.session_state.km = st.session_state.miles*1.609
+	
+def km_to_miles():
+	st.session_state.miles = st.session_state.km*0.621
+
+col1, buff, col2 = st.columns([2, 1, 2])
+with col1:
+	miles = st.number_input("Miles:", key="miles", on_change=miles_to_km)
+	
+	
+with col2:
+	km = st.number_input("Km:", key="km", on_change=km_to_miles)
