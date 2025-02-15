@@ -74,3 +74,39 @@ if uploaded_file:
 #camera_photo = st.camera_input("Take a photo")
 #if camera_photo:
 #	st.image(camera_photo)
+
+# Sidebar
+
+my_select_box = st.sidebar.selectbox("Select", ["US","UK","DE"])
+my_slider = st.sidebar.slider("Temperature")
+
+st.divider()
+
+left_col, right_col = st.columns(2)
+
+import random as rd
+
+data = [rd.random() for _ in range(100)]
+
+# we can use a context manager or calling method directly 
+
+with left_col:
+	st.subheader("A linechart")
+	st.line_chart(data)
+	
+
+right_col.subheader("Data")
+right_col.write(data[:10])
+
+col1, col2, col3 = st.columns([0.2, 0.5, 0.3]) # creates three columns + size in percentage of the total size !
+
+col1.markdown("Hello Streamlit")
+col2.write(data[5:10])
+with col3:
+	st.header("A cat")
+	st.image("https://www.google.com/imgres?q=cat..")
+	
+# Expander
+
+with st.expander("Click to expand"):
+	st.bar_chart({"Data":[rd.randint(2,10) for _ in range(25)]})
