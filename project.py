@@ -6,6 +6,7 @@ from langchain_community.document_loaders import (PyPDFLoader,
 												  TextLoader)
 import os
 
+# Loading the document into a Langchain format
 def load_document(file):
     _, extension = os.path.splitext(file)
     print(f"Loading {file}")
@@ -23,5 +24,9 @@ def load_document(file):
     data = loader.load()
     return data
 
-def chunk_data():
-    pass
+# Chunking the loaded document
+def chunk_data(data, chunk_size=256):
+	from langchain.text_splitter import RecursiveCharacterTextSplitter
+	text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=0)
+	chunks = text_splitter.split_documents(data)
+	return chunks
