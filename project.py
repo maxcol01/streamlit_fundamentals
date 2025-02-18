@@ -52,13 +52,13 @@ def ask_and_get_answer(vector_store, q, k=3):
 	from langchain.chains import RetrievalQA
 	from langchain.chat_models import ChatOpenAI
 	
-	llm = ChatOpenAI(api_key=API_OPENAI, model="gpt-4o-min")
-	retriever = vector_store.as_retriever(search_type="similiraty", 
+	llm = ChatOpenAI(api_key=API_OPENAI, model="gpt-4o-mini")
+	retriever = vector_store.as_retriever(search_type="similarity", 
                                           search_kwargs={"k":k})
 	chain = RetrievalQA.from_chain_type(llm=llm, 
                                         chain_type="stuff", 
                                         retriever=retriever)
-	answer = chain.invoke(q)
+	answer = chain.invoke(q)["result"]
 	return answer
 
 import streamlit as st
@@ -106,3 +106,11 @@ if __name__ == "__main__":
             st.write(f"k:{k}")# a higher k value will take longer but will be more accurate
             answer = ask_and_get_answer(vector_store, q, k)
             st.text_area("LLM answer: ", value=answer)
+
+    st.divider()
+    if "history" not in st.session_state:
+        st.session_state.history = "" # creation of the key value pair
+    value = f"Q: {q} \nA: {answer}"
+    st.session_state.history = f"{value} \n {"-"*100} \n {st.session_state.history}"
+    h = st.session_state.history
+    st.text_area(label="Chat history", value=h, key="history", height=400)
