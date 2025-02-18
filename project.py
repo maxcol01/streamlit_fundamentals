@@ -42,9 +42,11 @@ def chunk_data(data, chunk_size=256, chunk_overlap=20):
 
 # Create embeddings and vector store
 def create_embeddings(chunks):
-	embeddings = OpenAIEmbeddings(api_key=API_OPENAI)
-	vector_store = Chroma.from_documents(chunks, embeddings)
-	return vector_store
+    embeddings = OpenAIEmbeddings(api_key=API_OPENAI)
+    # vector_store = Chroma.from_documents(chunks, embeddings)
+    vector_store = Chroma.from_documents(chunks, embeddings, persist_directory="./chroma_db")
+    return vector_store
+
 
 
 # Create a Q/A function
@@ -61,6 +63,10 @@ def ask_and_get_answer(vector_store, q, k=3):
 	answer = chain.invoke(q)["result"]
 	return answer
 
+def clear_history():
+     if "history" in st.session_state:
+          del st.session_state["history"]
+
 import streamlit as st
 import os
 
@@ -72,9 +78,9 @@ if __name__ == "__main__":
     with st.sidebar:
         document_type = ["pdf", "docx", "txt"]
         uploaded_file = st.file_uploader("Upload a file:", type=document_type)
-        chunk_size = st.number_input("Chunk size", min_value=100, max_value=2028, value=512)
-        k = st.number_input("k", min_value=1, max_value=20, value=3)
-        add_data = st.button("Add Data")
+        chunk_size = st.number_input("Chunk size", min_value=100, max_value=2028, value=512, on_change=clear_history)
+        k = st.number_input("k", min_value=1, max_value=20, value=3, on_change=clear_history)
+        add_data = st.button("Add Data", on_click=clear_history)
         if uploaded_file and add_data:
 
             with st.spinner("Reading, chunking and embedding file ... "):
@@ -107,10 +113,10 @@ if __name__ == "__main__":
             answer = ask_and_get_answer(vector_store, q, k)
             st.text_area("LLM answer: ", value=answer)
 
-    st.divider()
-    if "history" not in st.session_state:
-        st.session_state.history = "" # creation of the key value pair
-    value = f"Q: {q} \nA: {answer}"
-    st.session_state.history = f"{value} \n {"-"*100} \n {st.session_state.history}"
-    h = st.session_state.history
-    st.text_area(label="Chat history", value=h, key="history", height=400)
+        st.divider()
+        if "history" not in st.session_state:
+            st.session_state.history = "" # creation of the key value pair
+        value = f"Q: {q} \nA: {answer}"
+        st.session_state.history = f"{value} \n {"-"*100} \n {st.session_state.history}"
+        h = st.session_state.history
+        st.text_area(label="Chat history", value=h, key="history", height=400)
