@@ -52,7 +52,7 @@ def ask_and_get_answer(vector_store, q, k=3):
 	from langchain.chains import RetrievalQA
 	from langchain.chat_models import ChatOpenAI
 	
-	llm = ChatOpenAI(api_key=API_OPENAI)
+	llm = ChatOpenAI(api_key=API_OPENAI, model="gpt-4o-min")
 	retriever = vector_store.as_retriever(search_type="similiraty", 
                                           search_kwargs={"k":k})
 	chain = RetrievalQA.from_chain_type(llm=llm, 
@@ -60,3 +60,14 @@ def ask_and_get_answer(vector_store, q, k=3):
                                         retriever=retriever)
 	answer = chain.invoke(q)
 	return answer
+
+if __name__ == "__main__":
+	# get the API key 
+	#st.image()
+	st.subheader("LLM Question-Answering Application")
+	with st.sidebar:
+		document_type = ["pdf", "docx", "txt"]
+		uploaded_file = st.file_uploader("Upload a file:", type = document_type)
+		chunk_size = st.number_input("Chunk size", min_value=100, max_value=2028, value = 512)
+		k = st.number_input("k", min_value=1, max_value=20, value=3)
+		add_data = st.button("Add Data")
